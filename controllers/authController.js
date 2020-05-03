@@ -32,7 +32,7 @@ exports.autenticarUsuario = async(req,res)=> {
         }
     }
     JWT.sign(payload, process.env.SECRET,{
-        expiresIn: '1h',
+        expiresIn: '3h',
     },(error, token)=>{
         if (error) throw error
          //mensaje
