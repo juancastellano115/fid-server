@@ -1,4 +1,5 @@
 const Articulo = require("../models/Articulo");
+const Usuario = require("../models/Usuario");
 const { validationResult } = require("express-validator");
 exports.crearArticulo = async (req, res) => {
   //revisar si hay errores
@@ -13,7 +14,7 @@ exports.crearArticulo = async (req, res) => {
     articulo.creador = req.usuario.id;
     let fotos = [];
     for (const iterator of req.files) {
-      fotos.push(iterator.filename)
+      fotos.push(iterator.filename);
     }
     articulo.fotos = fotos;
     articulo.save();
@@ -24,11 +25,11 @@ exports.crearArticulo = async (req, res) => {
   }
 };
 
-//obtiene todos los articulos del usuario actual
+//obtiene todos los articulos de un usuario
 
 exports.obtenerArticulos = async (req, res) => {
   try {
-    const articulos = await Articulo.find({ creador: req.usuario.id }).sort({
+    const articulos = await Articulo.find({ creador: req.id }).sort({
       fecha: -1,
     });
     res.json(articulos);
@@ -43,12 +44,27 @@ exports.obtenerArticulosByCity = async (req, res) => {
   let articulos = null;
   if (req.query.city) {
     try {
-      articulos = await Articulo.find({ ciudad: req.query.city })
-        .sort({
-          fecha: -1,
+      usuario = await Usuario.findById(req.usuario.id);
+      usuario.ciudad = req.query.city;
+      await usuario.save();
+      if (req.query.search) {
+        articulos = await Articulo.find({
+          ciudad: req.query.city,
+          nombre:{ $regex : req.query.search, $options: 'i' },
         })
-        .skip(req.query.skip)
-        .limit(10);
+          .sort({
+            fecha: -1,
+          })
+          .skip(req.query.skip)
+          .limit(10);
+      } else {
+        articulos = await Articulo.find({ ciudad: req.query.city })
+          .sort({
+            fecha: -1,
+          })
+          .skip(req.query.skip)
+          .limit(10);
+      }
       return res.json(articulos);
     } catch (error) {
       console.log(error);
@@ -58,13 +74,24 @@ exports.obtenerArticulosByCity = async (req, res) => {
     }
   } else {
     try {
-      articulos = await Articulo.find()
+      if (req.query.search) {
+        articulos = await Articulo.find({
+          nombre:{ $regex : req.query.search, $options: 'i' },
+        })
+          .sort({
+            fecha: -1,
+          })
+          .skip(req.query.skip)
+          .limit(10);
+      } else {
+        articulos = await Articulo.find()
         .sort({
           fecha: -1,
         })
         .skip(Number.parseInt(req.query.skip))
         .limit(10);
-      res.json(articulos);
+      }
+      return  res.json(articulos); 
     } catch (error) {
       console.log(error);
       res.status(500).json({ msg: "hubo un error al obtener los articulos" });
@@ -129,5 +156,24 @@ exports.eliminarArticulo = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ msg: "error del server al eliminar producto" });
+  }
+};
+
+//obtiene un articulo concreto y su dueño
+exports.obtenerArticulo = async (req, res) => {
+  try {
+    //revisar el ID
+    let articulo = await Articulo.findById(req.params.id);
+    //articulo existe o no
+    if (!articulo) {
+      return res.status(404).json({ msg: "articulo no encontrado" });
+    }
+    //coger el dueño del articulo para mostrar su perfil
+    let propietario = await Usuario.findById(articulo.creador);
+    let objetoDatos = {articulo, propietario};
+    res.json(objetoDatos)
+  } catch (error) {
+    console.log(error);
+    res.status(404).json({ msg: "error del server al buscar producto" });
   }
 };

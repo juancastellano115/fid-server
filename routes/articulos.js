@@ -23,8 +23,8 @@ router.post(
 //api/articulos GET
 router.get("/", auth, articulosController.obtenerArticulos);
 
-//obtener articulos segun ciudad (página principal)
-router.get("/cities", auth, articulosController.obtenerArticulosByCity);
+//obtener articulos segun ciudad y query(página principal)
+router.get("/search", auth, articulosController.obtenerArticulosByCity);
 
 //actualizar articulos
 router.put(
@@ -37,4 +37,6 @@ router.put(
 //eliminar articulos
 router.delete("/:id", auth, articulosController.eliminarArticulo);
 
+//obtener un articulo concreto
+router.get('/:id',auth,articulosController.obtenerArticulo)
 module.exports = router;

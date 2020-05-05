@@ -19,7 +19,7 @@ router.post("/", auth, upload.single("file"), async (req, res) => {
     return res.status(400).json({ msg: "Debes subir una foto" });
   }
   let user = await Usuario.findById(req.usuario.id);
-  user.foto = req.file.path;
+  user.foto = req.file.filename;
 
   const tensorbuffer = readImage(
     "C:\\Users\\juanc\\Desktop\\fid proyecto\\server\\public\\img\\users\\" +
