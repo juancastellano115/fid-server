@@ -22,12 +22,10 @@ router.post("/", auth, upload.single("file"), async (req, res) => {
   user.foto = req.file.filename;
 
   const tensorbuffer = readImage(
-    "C:\\Users\\juanc\\Desktop\\fid proyecto\\server\\public\\img\\users\\" +
+    "file://../public/img/users/" +
       req.file.filename
   );
-  const model = await tf.loadLayersModel(
-    "https://raw.githubusercontent.com/juancastellano115/gender-classifier/master/public/model/model.json"
-  );
+  const model = await tf.loadLayersModel("file://AI/model.json");
 
   const smalImg = tf.image.resizeBilinear(tensorbuffer, [224, 224]);
   const resized = tf.cast(smalImg, "float32");
@@ -36,8 +34,8 @@ router.post("/", auth, upload.single("file"), async (req, res) => {
   let predicted = await prediction.dataSync();
   let i = predicted.indexOf(Math.max(...predicted));
   user.genero = labels[i];
-  await  user.save();
-  res.json({genero: user.genero});
+  await user.save();
+  res.json({ genero: user.genero });
 });
 
 const readImage = (path) => {

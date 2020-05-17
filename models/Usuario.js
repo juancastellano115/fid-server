@@ -35,6 +35,10 @@ const UsuariosSchema = mongoose.Schema({
   ciudad: String,
   genero: { type: String, enum: generos },
   rol: { type: String, default: 'USER', enum: roles },
+  chats: {
+    type: Array,
+    default: [],
+  },
 });
 
 UsuariosSchema.methods.toJSON = function() {

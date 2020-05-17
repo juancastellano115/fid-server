@@ -28,7 +28,8 @@ exports.autenticarUsuario = async(req,res)=> {
       //crear el JWT
       const payload = {
         usuario: {
-            id: usuario.id
+            id: usuario.id,
+            rol: usuario.rol
         }
     }
     JWT.sign(payload, process.env.SECRET,{

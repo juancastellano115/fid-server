@@ -1,28 +1,52 @@
-const express = require('express')
-const conectarDB = require('./config/db')
-const cors = require('cors')
-const morgan = require('morgan')
+const express = require("express");
+const conectarDB = require("./config/db");
+const cors = require("cors");
+const morgan = require("morgan");
+const resize = require("./controllers/ImageController");
 //crear el servidor
-const app  = express();
+const app = express();
+const http = require("http").createServer(app);
+//echufar los sockets
+var io = require("socket.io")(http);
 //conectar a la BD
 conectarDB();
 
-app.use(cors())
-app.use(morgan('tiny'))
+app.use(cors());
+app.use(morgan("tiny"));
 //directorio público
-app.use('/resources',express.static('public'));
+app.get("/resources/:tipo/:path", (req, res) => {
+  const widthString = req.query.width;
+  const heightString = req.query.height;
+  let width, height;
+
+  if (widthString) {
+    width = parseInt(widthString);
+  }
+  if (heightString) {
+    height = parseInt(heightString);
+  }
+  res.type("image/png");
+  resize("public/img/"+ req.params.tipo + "/" +req.params.path,width, height).pipe(
+    res
+  );
+});
+
 //Habilitar parseo de json
-app.use(express.json({extended: true}))
+app.use(express.json({ extended: true }));
 //definir puerto
-const PORT  = process.env.PORT || 4000;
+const PORT = process.env.PORT || 4000;
 
 //importar rutas
-app.use('/api/usuarios',require('./routes/usuarios'))
-app.use('/api/auth',require('./routes/auth'))
-app.use('/api/fotoRecog',require('./routes/fotoRecog'))
-app.use('/api/articulos',require('./routes/articulos'))
+app.use("/api/usuarios", require("./routes/usuarios"));
+app.use("/api/auth", require("./routes/auth"));
+app.use("/api/fotoRecog", require("./routes/fotoRecog"));
+app.use("/api/articulos", require("./routes/articulos"));
+app.use("/api/chat", require("./routes/chats"));
+app.use("/api/estadisticas", require("./routes/estadistica"));
 
+//manejador de los sockets
+sockethandler = require("./controllers/socketController")(io);
 //escuchar
-app.listen(PORT, ()=>{
-    console.log(`El servidor está escuchando en el puerto ${PORT}`);
+http.listen(PORT, () => {
+  console.log(`El servidor está escuchando en el puerto ${PORT}`);
 });

@@ -12,4 +12,8 @@ router.post("/", [
 ], usuarioController.crearUsuario);
 //dar la información de un usuario
 router.get('/me',auth,usuarioController.getUsuario);
+
+//endpoint para dar un like a un usuario
+router.get('/like/:id', auth, usuarioController.likes)
+
 module.exports = router;

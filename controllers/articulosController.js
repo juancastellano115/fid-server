@@ -12,6 +12,7 @@ exports.crearArticulo = async (req, res) => {
     //crear un nuevo articulo
     const articulo = new Articulo(req.body);
     articulo.creador = req.usuario.id;
+    articulo.alergenos = JSON.parse(req.body.alergenos)
     let fotos = [];
     for (const iterator of req.files) {
       fotos.push(iterator.filename);
@@ -25,14 +26,16 @@ exports.crearArticulo = async (req, res) => {
   }
 };
 
-//obtiene todos los articulos de un usuario
+//obtiene todos los articulos de un perfil y sus datos para mostrarlos
 
 exports.obtenerArticulos = async (req, res) => {
   try {
-    const articulos = await Articulo.find({ creador: req.id }).sort({
+    console.log(req.query.id)
+    const articulos = await Articulo.find({ creador: req.query.id }).sort({
       fecha: -1,
     });
-    res.json(articulos);
+    const perfil = await Usuario.findOne({ _id: req.query.id })
+    res.json({articulos, perfil});
   } catch (error) {
     console.log(error);
     res.status(500).json({ msg: "hubo un error al obtener los articulos" });
@@ -55,14 +58,14 @@ exports.obtenerArticulosByCity = async (req, res) => {
           .sort({
             fecha: -1,
           })
-          .skip(req.query.skip)
+          .skip(parseInt(req.query.skip))
           .limit(10);
       } else {
         articulos = await Articulo.find({ ciudad: req.query.city })
           .sort({
             fecha: -1,
           })
-          .skip(req.query.skip)
+          .skip(parseInt(req.query.skip))
           .limit(10);
       }
       return res.json(articulos);
@@ -108,10 +111,23 @@ exports.actualizarArticulo = async (req, res) => {
   }
   //extraer la info del articulo
 
-  const { nombre } = req.body;
+
   const nuevoArticulo = {};
-  if (nombre) {
-    nuevoArticulo.nombre = nombre;
+  if (req.body.nombre && req.body.desc) {
+    nuevoArticulo.nombre = req.body.nombre;
+    nuevoArticulo.desc = req.body.desc;
+  }
+  if (req.body.alergenos && req.body.precio ) {
+    nuevoArticulo.alergenos = JSON.parse(req.body.alergenos)
+    nuevoArticulo.precio = req.body.precio
+  }
+  let fotos = [];
+  for (const iterator of req.files) {
+    fotos.push(iterator.filename);
+  }
+  nuevoArticulo.fotos = fotos;
+  if (req.body.ciudad) {
+    nuevoArticulo.ciudad = req.body.ciudad;
   }
   try {
     //revisar el ID
@@ -147,7 +163,7 @@ exports.eliminarArticulo = async (req, res) => {
       return res.status(404).json({ msg: "articulo no encontrado" });
     }
     //verificar creador
-    if (articulo.creador.toString() !== req.usuario.id) {
+    if (articulo.creador.toString() !== req.usuario.id || req.usuario.rol !== 'ADMIN') {
       return res.status(401).json({ msg: "No autorizado" });
     }
     //eliminar el articulo
@@ -175,5 +191,21 @@ exports.obtenerArticulo = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(404).json({ msg: "error del server al buscar producto" });
+  }
+};
+
+exports.getArticulosPorEmail = async (req, res) => {
+  try {
+    //revisar el ID
+    let user = await Usuario.findOne({email : req.body.email})
+    let articulos = await Articulo.find({creador : user._id})
+    //articulos existen o no
+    if (!articulos) {
+      return res.status(404).json({ msg: "articulos no encontrados" });
+    }
+   return res.json(articulos)
+  } catch (error) {
+    console.log(error);
+    res.status(404).json({ msg: "error del server al buscar los articulos" });
   }
 };

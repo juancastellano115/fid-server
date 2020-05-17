@@ -31,6 +31,7 @@ exports.crearUsuario = async (req, res) => {
     const payload = {
       usuario: {
         id: usuario.id,
+        rol: usuario.rol
       },
     };
     JWT.sign(
@@ -53,7 +54,6 @@ exports.crearUsuario = async (req, res) => {
 
 exports.getUsuario = async (req, res) => {
   try {
-    console.log(req.usuario)
     let usuario = await Usuario.findById(req.usuario.id);
     if (!usuario) {
       return res.status(400).json({ msg: "Ese usuario no existe" });
@@ -63,5 +63,27 @@ exports.getUsuario = async (req, res) => {
     }
   } catch (error) {
     console.log(error)
+  }
+};
+
+exports.likes = async (req, res) => {
+  try {
+    //comprobar que no te das like a ti mismo
+    if (req.usuario.id != req.params.id ) {
+      let usuarioLike = await Usuario.findById(req.params.id);
+      let usuario = await Usuario.findById(req.usuario.id);
+      usuarioLike.likes +=1;
+      await usuarioLike.save()
+      usuario.likesOtorgados.push(req.params.id)
+      await usuario.save()
+      return res.json({ msg: "like dado y registrado" });
+
+    }
+    else{
+      return res.status(400).json({ msg: "No te puedes dar like a ti mismo" });
+    }
+  } catch (error) {
+    console.log(error)
+    return res.status(201).json({ msg: "Error en el server al dar like" });
   }
 };
