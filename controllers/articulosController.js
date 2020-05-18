@@ -35,7 +35,7 @@ exports.obtenerArticulos = async (req, res) => {
       fecha: -1,
     });
     const perfil = await Usuario.findOne({ _id: req.query.id })
-    res.json({articulos, perfil});
+    res.json({ articulos, perfil });
   } catch (error) {
     console.log(error);
     res.status(500).json({ msg: "hubo un error al obtener los articulos" });
@@ -53,7 +53,7 @@ exports.obtenerArticulosByCity = async (req, res) => {
       if (req.query.search) {
         articulos = await Articulo.find({
           ciudad: req.query.city,
-          nombre:{ $regex : req.query.search, $options: 'i' },
+          nombre: { $regex: req.query.search, $options: 'i' },
         })
           .sort({
             fecha: -1,
@@ -79,7 +79,7 @@ exports.obtenerArticulosByCity = async (req, res) => {
     try {
       if (req.query.search) {
         articulos = await Articulo.find({
-          nombre:{ $regex : req.query.search, $options: 'i' },
+          nombre: { $regex: req.query.search, $options: 'i' },
         })
           .sort({
             fecha: -1,
@@ -88,13 +88,13 @@ exports.obtenerArticulosByCity = async (req, res) => {
           .limit(10);
       } else {
         articulos = await Articulo.find()
-        .sort({
-          fecha: -1,
-        })
-        .skip(Number.parseInt(req.query.skip))
-        .limit(10);
+          .sort({
+            fecha: -1,
+          })
+          .skip(Number.parseInt(req.query.skip))
+          .limit(10);
       }
-      return  res.json(articulos); 
+      return res.json(articulos);
     } catch (error) {
       console.log(error);
       res.status(500).json({ msg: "hubo un error al obtener los articulos" });
@@ -117,7 +117,7 @@ exports.actualizarArticulo = async (req, res) => {
     nuevoArticulo.nombre = req.body.nombre;
     nuevoArticulo.desc = req.body.desc;
   }
-  if (req.body.alergenos && req.body.precio ) {
+  if (req.body.alergenos && req.body.precio) {
     nuevoArticulo.alergenos = JSON.parse(req.body.alergenos)
     nuevoArticulo.precio = req.body.precio
   }
@@ -186,7 +186,7 @@ exports.obtenerArticulo = async (req, res) => {
     }
     //coger el dueño del articulo para mostrar su perfil
     let propietario = await Usuario.findById(articulo.creador);
-    let objetoDatos = {articulo, propietario};
+    let objetoDatos = { articulo, propietario };
     res.json(objetoDatos)
   } catch (error) {
     console.log(error);
@@ -197,13 +197,18 @@ exports.obtenerArticulo = async (req, res) => {
 exports.getArticulosPorEmail = async (req, res) => {
   try {
     //revisar el ID
-    let user = await Usuario.findOne({email : req.body.email})
-    let articulos = await Articulo.find({creador : user._id})
-    //articulos existen o no
-    if (!articulos) {
-      return res.status(404).json({ msg: "articulos no encontrados" });
+    let user = await Usuario.findOne({ email: req.body.email })
+    if (user) {
+      let articulos = await Articulo.find({ creador: user._id })
+      //articulos existen o no
+      if (!articulos) {
+        return res.status(404).json({ msg: "articulos no encontrados" });
+      }
+      return res.json(articulos)
     }
-   return res.json(articulos)
+    else {
+      return res.status(404).json({ msg: "usuario no encontrado" });
+    }
   } catch (error) {
     console.log(error);
     res.status(404).json({ msg: "error del server al buscar los articulos" });

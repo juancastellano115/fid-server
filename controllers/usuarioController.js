@@ -58,8 +58,8 @@ exports.getUsuario = async (req, res) => {
     if (!usuario) {
       return res.status(400).json({ msg: "Ese usuario no existe" });
     }
-    else{
-      res.json({data: usuario})
+    else {
+      res.json({ data: usuario })
     }
   } catch (error) {
     console.log(error)
@@ -69,17 +69,17 @@ exports.getUsuario = async (req, res) => {
 exports.likes = async (req, res) => {
   try {
     //comprobar que no te das like a ti mismo
-    if (req.usuario.id != req.params.id ) {
+    if (req.usuario.id != req.params.id) {
       let usuarioLike = await Usuario.findById(req.params.id);
       let usuario = await Usuario.findById(req.usuario.id);
-      usuarioLike.likes +=1;
+      usuarioLike.likes += 1;
       await usuarioLike.save()
       usuario.likesOtorgados.push(req.params.id)
       await usuario.save()
       return res.json({ msg: "like dado y registrado" });
 
     }
-    else{
+    else {
       return res.status(400).json({ msg: "No te puedes dar like a ti mismo" });
     }
   } catch (error) {
@@ -87,3 +87,36 @@ exports.likes = async (req, res) => {
     return res.status(201).json({ msg: "Error en el server al dar like" });
   }
 };
+
+exports.borrarUsuario = async (req, res) => {
+  try {
+    //revisar el ID
+    let user = await Usuario.findOneAndDelete({ email: req.body.email })
+    if (user) {
+      return res.json({ msg: 'Usuario borrado' })
+    }
+    return res.status(404).json({ msg: 'Usuario no encontrado' })
+  } catch (error) {
+    console.log(error);
+    res.status(404).json({ msg: "error del server al borrar usuario" });
+  }
+}
+
+exports.hacerAdmin = async (req, res) => {
+  try {
+    //revisar que exista
+    let user = await Usuario.findOne({ email: req.body.email })
+    if (user) {
+      user.rol = 'ADMIN'
+      await user.save()
+      return res.json({ msg: 'Cambio satisfactorio' })
+    }
+    else {
+      res.status(404).json({ msg: "Usuario no encontrado" });
+    }
+    
+  } catch (error) {
+    console.log(error);
+    res.status(401).json({ msg: "error del server al borrar usuario" });
+  }
+}
