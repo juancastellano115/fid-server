@@ -7,7 +7,8 @@ const fs = require("fs");
 const express = require("express");
 const router = express.Router();
 const labels = ["Hombre", "Mujer"];
-
+const path = require('path');
+const appDir = path.dirname(require.main.filename);
 const upload = multer({
   storage: multerConf.multerStorage,
   fileFilter: multerConf.multerFilter,
@@ -16,13 +17,13 @@ const upload = multer({
 //ruta para el reconocimiento facial
 router.post("/", auth, upload.single("file"), async (req, res) => {
   if (!req.file) {
-    return res.status(400).json({ msg: "Debes subir una foto" });
+    return res.json({ genero: "una maravillosa persona" });
   }
   let user = await Usuario.findById(req.usuario.id);
   user.foto = req.file.filename;
 
   const tensorbuffer = readImage(
-    "file://../public/img/users/" +
+    appDir +"/public/img/users/" +
       req.file.filename
   );
   const model = await tf.loadLayersModel("file://AI/model.json");

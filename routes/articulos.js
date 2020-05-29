@@ -16,7 +16,9 @@ router.post(
   "/",
   auth,
   upload.array("fotos", 5),
-  [check("nombre", "el nombre del articulo es obligatorio").not().isEmpty()],
+  [check("nombre", "el nombre del articulo es obligatorio").not().isEmpty(),
+  check("desc", "la descripcción del articulo es obligatorio").not().isEmpty(),
+  check("precio", "el precio del articulo es obligatorio").not().isEmpty()],
   articulosController.crearArticulo
 );
 
@@ -33,7 +35,9 @@ router.put(
   "/:id",
   auth,
   upload.array("fotos", 5),
-  [check("nombre", "el nombre del articulo es obligatorio").not().isEmpty()],
+  [check("nombre", "el nombre del articulo es obligatorio").not().isEmpty(),
+  check("desc", "la descripcción del articulo es obligatorio").not().isEmpty(),
+  check("precio", "el precio del articulo es obligatorio").isNumeric().not().isEmpty()],
   articulosController.actualizarArticulo
 );
 

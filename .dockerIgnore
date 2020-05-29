@@ -1,0 +1,6 @@
+node_modules
+npm-debug.log
+.env
+.nuxt
+docker-compose.yml
+.git

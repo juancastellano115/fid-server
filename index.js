@@ -26,9 +26,19 @@ app.get("/resources/:tipo/:path", (req, res) => {
     height = parseInt(heightString);
   }
   res.type("image/png");
-  resize("public/img/"+ req.params.tipo + "/" +req.params.path,width, height).pipe(
-    res
-  );
+  if (req.params.path === "undefined" || req.params.path == "null" ) {
+    resize(
+      "public/img/" + req.params.tipo + "/undefined.svg",
+      width,
+      height
+    ).pipe(res);
+  } else {
+    resize(
+      "public/img/" + req.params.tipo + "/" + req.params.path,
+      width,
+      height
+    ).pipe(res);
+  }
 });
 
 //Habilitar parseo de json

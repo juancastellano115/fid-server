@@ -30,7 +30,7 @@ exports.crearArticulo = async (req, res) => {
 
 exports.obtenerArticulos = async (req, res) => {
   try {
-    console.log(req.query.id)
+    //console.log(req.query.id)
     const articulos = await Articulo.find({ creador: req.query.id }).sort({
       fecha: -1,
     });
@@ -163,8 +163,10 @@ exports.eliminarArticulo = async (req, res) => {
       return res.status(404).json({ msg: "articulo no encontrado" });
     }
     //verificar creador
-    if (articulo.creador.toString() !== req.usuario.id || req.usuario.rol !== 'ADMIN') {
-      return res.status(401).json({ msg: "No autorizado" });
+    if (req.usuario.rol !== 'ADMIN') {
+      if (articulo.creador.toString() !== req.usuario.id) {
+        return res.status(401).json({ msg: "No autorizado" });
+      }
     }
     //eliminar el articulo
     await Articulo.findOneAndRemove({ _id: req.params.id });

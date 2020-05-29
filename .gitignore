@@ -1,4 +1,6 @@
 /node_modules
 package-lock.json
-*.env
-/public
+/public/img/products/*.jpeg
+/public/img/products/*.png
+/public/img/users/*.jpeg
+/public/img/users/*.png

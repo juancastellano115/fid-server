@@ -50,9 +50,14 @@ exports.getEstadisticas = async (req, res) => {
       },
     },
     {
+      $sort: {
+        date: 1,
+      },
+    },
+    {
       $project: {
         date: {
-          $dateToString: { format: "%Y-%m-%d", date: "$date" },
+          $dateToString: { format: "%d-%m-%Y", date: "$date" },
         },
         count: 1,
         _id: 0,
@@ -77,9 +82,14 @@ exports.getEstadisticas = async (req, res) => {
       },
     },
     {
+      $sort: {
+        date: 1,
+      },
+    },
+    {
       $project: {
         date: {
-          $dateToString: { format: "%Y-%m-%d", date: "$date" },
+          $dateToString: { format: "%d-%m-%Y", date: "$date" },
         },
         count: 1,
         _id: 0,
@@ -87,31 +97,34 @@ exports.getEstadisticas = async (req, res) => {
     },
   ]);
 
-  const fechaHoy = () => {
-    today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return today;
-  };
   const articulosHoy = await Articulo.aggregate([
     {
       $match: {
-        fecha: { $gte: fechaHoy() },
-      },
-    },
-    {
-      $sort: {
-        fecha: 1,
+        fecha: { $gte: new Date(new Date() - 7 * 60 * 60 * 24 * 1000) },
       },
     },
     {
       $group: { _id: "$fecha", count: { $sum: 1 }, date: { $first: "$fecha" } },
     },
     {
+      $sort: {
+        date: 1,
+      },
+    },
+    {
       $project: {
         count: 1,
-        date: 1,
+        date: { $dateToString: { format: "%d-%m-%Y", date: "$date" },},
         _id: 0,
       },
+    },
+  ]);
+  const generos = await Usuario.aggregate([
+    {
+      $group: {
+        _id: "$genero",
+        count: { $sum: 1 }
+      }
     },
   ]);
 
@@ -123,5 +136,6 @@ exports.getEstadisticas = async (req, res) => {
     registros,
     ActividadMensajes,
     articulosHoy,
+    generos
   });
 };

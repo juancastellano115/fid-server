@@ -88,6 +88,56 @@ exports.likes = async (req, res) => {
   }
 };
 
+exports.editarPerfil = async (req, res) =>{
+  
+    //revisar si hay errores
+  const errores = validationResult(req);
+  if (!errores.isEmpty()) {
+    return res.status(400).json({ errores: errores.array() });
+  }
+  const perfilEditado = {};
+
+  if (req.file) {
+    perfilEditado.foto = req.file.filename
+  }
+  if (req.body.nombre) {
+    perfilEditado.nombre = req.body.nombre
+  }
+  if (req.body.password) {
+    const salt = await bcrypt.genSalt(10);
+    perfilEditado.password = await bcrypt.hash(req.body.password, salt);
+  }
+  if (req.body.email) {
+    perfilEditado.email = req.body.email
+  }
+  if (req.body.ciudad && req.body.ciudad != "undefined") {
+    perfilEditado.ciudad = req.body.ciudad
+  }
+  if (req.body.genero && req.body.genero != "undefined") {
+    perfilEditado.genero = req.body.genero
+  }
+
+  try {
+    //revisar el ID
+    let usuario = await Usuario.findById(req.params.id);
+    //usuario existe o no
+    if (!usuario) {
+      return res.status(404).json({ msg: "usuario no encontrado" });
+    }
+    //actualizar
+    usuario = await Usuario.findOneAndUpdate(
+      { _id: req.params.id },
+      { $set: perfilEditado },
+      { new: true }
+    );
+      
+    res.json({ usuario });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ msg: "Error del server al actualizar el perfil" });
+  }
+}
+
 exports.borrarUsuario = async (req, res) => {
   try {
     //revisar el ID
