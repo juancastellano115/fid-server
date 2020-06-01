@@ -1,4 +1,5 @@
 const Usuario = require("../models/Usuario");
+const Articulo = require("../models/Articulo");
 const bcrypt = require("bcryptjs");
 const { validationResult } = require("express-validator");
 const JWT = require("jsonwebtoken");
@@ -143,6 +144,7 @@ exports.borrarUsuario = async (req, res) => {
     //revisar el ID
     let user = await Usuario.findOneAndDelete({ email: req.body.email })
     if (user) {
+      await Articulo.deleteMany({creador : user._id})
       return res.json({ msg: 'Usuario borrado' })
     }
     return res.status(404).json({ msg: 'Usuario no encontrado' })

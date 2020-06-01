@@ -12,7 +12,6 @@ exports = module.exports = function (io) {
     //cuando un cliente se conecta se guarda en el array de arriba
     socket.on("user_chat_connected", function (userId) {
       users[userId] = socket.id;
-      console.log(users);
     });
     //cuando alguien manda un mensaje
     socket.on("send_message", async function (data) {
