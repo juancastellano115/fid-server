@@ -1,4 +1,4 @@
-//rutas para clos usuarios
+//rutas para los usuarios
 const express = require("express");
 const router = express.Router();
 const usuarioController = require("../controllers/usuarioController");
@@ -33,5 +33,6 @@ router.post("/admin/borrar", auth, adminCheck, usuarioController.borrarUsuario);
 //hacer admin un usuario
 router.post("/admin/make", auth, adminCheck, usuarioController.hacerAdmin);
 
+//actualizar un usuario
 router.post("/update/:id", auth, upload.single("file"), [check("email", "agrega un email válido").isEmail(),] , usuarioController.editarPerfil);
 module.exports = router;

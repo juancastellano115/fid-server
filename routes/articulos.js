@@ -24,7 +24,6 @@ router.post(
 
 //obtener articulos del perfil que lo solicita
 //api/articulos GET
-//cambier este a /perfil
 router.get("/", auth, articulosController.obtenerArticulos);
 
 //obtener articulos segun ciudad y query(página principal)

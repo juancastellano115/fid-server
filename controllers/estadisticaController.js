@@ -1,7 +1,7 @@
 const Articulo = require("../models/Articulo");
 const Usuario = require("../models/Usuario");
 const Chat = require("../models/Chat");
-
+// devuelve estadísticas de la bdd
 exports.getEstadisticas = async (req, res) => {
   const numArticulos = await Articulo.countDocuments();
   const numUsuarios = await Usuario.countDocuments();

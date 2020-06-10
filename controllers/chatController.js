@@ -25,7 +25,7 @@ exports.get_conversations = async (req, res) => {
       "chats",
       "_id nombre foto"
     );
-    // Get last messages with wom authUser had a chat
+    // obtener los chats del usuario
     const lastMessages = await ChatMessages.aggregate([
       {
         $match: {
@@ -83,7 +83,7 @@ exports.get_conversations = async (req, res) => {
 
       conversations.push(user);
     });
-    // Sort users by last created messages date
+    // ordenar los usuarios por fecha
     
     const sortedConversations = conversations.sort((a, b) =>
       b.lastMessageCreatedAt.toString().localeCompare(a.lastMessageCreatedAt)

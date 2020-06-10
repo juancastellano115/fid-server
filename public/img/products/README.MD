@@ -1,0 +1,1 @@
+# En este directorio se almacenan las imágenes de los productos.
